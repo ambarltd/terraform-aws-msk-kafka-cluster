@@ -143,7 +143,7 @@ variable "s3_logs_prefix" {
 variable "storage_mode" {
   description = "Storage mode for the cluster. Valid values: `LOCAL`, `TIERED`. Default value is `LOCAL`. `TIERED` must use a compatible `kafka_version`."
   type        = string
-  default     = null
+  default     = "LOCAL"
 }
 
 variable "timeouts" {
