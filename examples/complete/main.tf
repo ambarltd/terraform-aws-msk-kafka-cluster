@@ -163,6 +163,8 @@ module "msk_cluster" {
   broker_node_instance_type   = "kafka.t3.small"
   broker_node_security_groups = [module.security_group.security_group_id]
 
+  storage_mode = "LOCAL"
+
   encryption_in_transit_client_broker = "TLS"
   encryption_in_transit_in_cluster    = true
 
