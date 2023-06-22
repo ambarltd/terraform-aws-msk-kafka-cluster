@@ -21,6 +21,8 @@ resource "aws_msk_cluster" "this" {
     security_groups = var.broker_node_security_groups
   }
 
+  storage_mode = var.storage_mode
+
   dynamic "client_authentication" {
     for_each = length(var.client_authentication_tls_certificate_authority_arns) > 0 || var.client_authentication_sasl_scram || var.client_authentication_sasl_iam ? [1] : []
 
