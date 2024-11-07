@@ -18,32 +18,33 @@ locals {
   }
 }
 
-################################################################################
-# MSK Cluster - Default
-################################################################################
+module "msk_serverless_cluster" {
+  source = "../../modules/serverless"
 
-module "msk_cluster" {
-  source = "../.."
+  name = local.name
 
-  name                   = local.name
-  kafka_version          = "3.5.1"
-  number_of_broker_nodes = 3
+  security_group_ids = [module.security_group.security_group_id]
+  subnet_ids         = module.vpc.private_subnets
 
-  broker_node_client_subnets  = module.vpc.private_subnets
-  broker_node_instance_type   = "kafka.t3.small"
-  broker_node_security_groups = [module.security_group.security_group_id]
+  create_cluster_policy = true
+  cluster_policy_statements = {
+    firehose = {
+      sid = "firehose"
+      principals = [
+        {
+          type        = "Service"
+          identifiers = ["firehose.amazonaws.com"]
+        }
+      ]
+      actions = [
+        "kafka:CreateVpcConnection",
+        "kafka:GetBootstrapBrokers",
+        "kafka:DescribeClusterV2"
+      ]
+    }
+  }
 
   tags = local.tags
-}
-
-################################################################################
-# MSK Cluster - Disabled
-################################################################################
-
-module "msk_cluster_disabled" {
-  source = "../.."
-
-  create = false
 }
 
 ################################################################################
@@ -79,8 +80,7 @@ module "security_group" {
 
   ingress_cidr_blocks = module.vpc.private_subnets_cidr_blocks
   ingress_rules = [
-    "kafka-broker-tcp",
-    "kafka-broker-tls-tcp"
+    "kafka-broker-sasl-iam-tcp"
   ]
 
   tags = local.tags
